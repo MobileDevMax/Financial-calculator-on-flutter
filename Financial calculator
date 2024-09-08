@@ -1,0 +1,110 @@
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'dart:math'; 
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Financial calculator',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: FinancialCalculator(),
+    );
+  }
+}
+
+class FinancialCalculator extends StatefulWidget {
+  @override
+  _FinancialCalculatorState createState() => _FinancialCalculatorState();
+}
+
+class _FinancialCalculatorState extends State<FinancialCalculator> {
+  final TextEditingController _amountController = TextEditingController();
+  final TextEditingController _rateController = TextEditingController();
+  final TextEditingController _timeController = TextEditingController();
+
+  double _futureValue = 0.0;
+  double _profit = 0.0;
+  String _resultText = '';
+  String _profitText = '';
+
+  void _calculateFutureValue() {
+    double amount = double.tryParse(_amountController.text) ?? 0;
+    double rate = (double.tryParse(_rateController.text) ?? 0) / 100;
+    int time = int.tryParse(_timeController.text) ?? 0;
+
+    // Calculating the future value
+    _futureValue = amount * pow((1 + rate), time);
+    // Calculating profit
+    _profit = _futureValue - amount;
+
+    setState(() {
+      _resultText = 'Future falue: ${NumberFormat.currency(locale: 'en_US', symbol: '\$').format(_futureValue)}';
+      _profitText = 'Profit: ${NumberFormat.currency(locale: 'en_US', symbol: '\$').format(_profit)}';
+    });
+  }
+
+  void _resetFields() {
+    _amountController.clear();
+    _rateController.clear();
+    _timeController.clear();
+    setState(() {
+      _resultText = '';
+      _profitText = '';
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Financial calculator'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextField(
+              controller: _amountController,
+              decoration: InputDecoration(labelText: 'Sum (\$)'),  
+              keyboardType: TextInputType.number,
+            ),
+            TextField(
+              controller: _rateController,
+              decoration: InputDecoration(labelText: 'Annual percentage rate (%)'),
+              keyboardType: TextInputType.number,
+            ),
+            TextField(
+              controller: _timeController,
+              decoration: InputDecoration(labelText: 'Term (years)'),
+              keyboardType: TextInputType.number,
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _calculateFutureValue,
+              child: Text('Calculate future value and profit'),
+            ),
+            ElevatedButton(
+              onPressed: _resetFields,
+              child: Text('Reset'),
+            ),
+            SizedBox(height: 20),
+            Text(
+              _resultText,
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            Text(
+              _profitText,
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
